@@ -2,6 +2,9 @@ import Head from "next/head";
 import { CardanoWallet, useWallet } from "@meshsdk/react";
 import { Transaction, ForgeScript } from "@meshsdk/core";
 import { useState } from "react";
+import { BlockfrostProvider } from '@meshsdk/core';
+
+const blockfrostProvider = new BlockfrostProvider('previewT07MdOONxN1GZFlTTOR82iFvPuOA0UXx');
 
 export default function Home() {
   const { wallet, connected } = useWallet();
@@ -14,9 +17,8 @@ export default function Home() {
     }
     try {
       const walletAddress = await wallet.getChangeAddress();
-      const forgeScript = ForgeScript.withOneSignature(walletAddress);
-      const policyId = forgeScript; // Policy ID is the script hash
-
+      const forgeScript = ForgeScript.withOneSignature(walletAddress); // This is already the policy ID string
+      const policyId = forgeScript; // No getHash() needed
       console.log("Generated Policy ID:", policyId);
       alert(`Policy ID: ${policyId}`);
       setPolicyId(policyId);
@@ -40,23 +42,16 @@ export default function Home() {
       const walletAddress = await wallet.getChangeAddress();
       const forgeScript = ForgeScript.withOneSignature(walletAddress);
 
-      const refAssetName = "000643b0MyNFT";
-      const userAssetName = "000de140MyNFT";
+      const playerId = "Player0002"; // New NFT
+      const refAssetName = "000643b0" + playerId;
+      const userAssetName = "000de140" + playerId;
 
-      const metadata: {
-        data: {
-          [key: string]: {
-            name: string;
-            description: string;
-            image: string;
-          };
-        };
-      } = {
-        data: {
-          [policyId + refAssetName]: {
-            name: "My CIP-68 NFT",
-            description: "A dynamic NFT on Cardano",
-            image: "ipfs://QmYourHashHere",
+      const metadata = {
+        "721": {
+          [policyId]: {
+            [userAssetName]: {
+              image: `https://tinyurl.com/player0001`,
+            },
           },
         },
       };
@@ -70,8 +65,7 @@ export default function Home() {
           assetQuantity: "1",
           label: "100",
           recipient: walletAddress,
-        },
-        
+        }
       );
 
       tx.mintAsset(
@@ -83,6 +77,8 @@ export default function Home() {
           recipient: walletAddress,
         }
       );
+
+      tx.setMetadata(721, metadata["721"]);
 
       const unsignedTx = await tx.build();
       const signedTx = await wallet.signTx(unsignedTx);
@@ -104,10 +100,7 @@ export default function Home() {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center p-24">
         <h1 className="text-6xl font-thin mb-20">
-          <a href="https://meshjs.dev/" className="text-sky-600">
-            Mesh
-          </a>{" "}
-          CIP-68 Minter
+          <a href="https://meshjs.dev/" className="text-sky-600">Mesh</a> CIP-68 Minter
         </h1>
         <div className="mb-20">
           <CardanoWallet />
