@@ -11,6 +11,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@cardano-sdk/core": "^0.45.5",
     "@meshsdk/contract": "^1.9.0-beta.15",
     "@meshsdk/core": "^1.9.0-beta.0",
     "@meshsdk/react": "^1.9.0-beta.0",
