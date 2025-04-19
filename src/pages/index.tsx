@@ -1,26 +1,30 @@
 import Head from "next/head";
 import { adminLockScript } from "../contracts/adminLock";
 import { CardanoWallet, useWallet } from "@meshsdk/react";
-import { Transaction, PlutusScript, NativeScript, serializeNativeScript, Data, BrowserWallet } from "@meshsdk/core";
+import { Transaction, PlutusScript, NativeScript, serializeNativeScript, Data, BrowserWallet, serializePlutusScript, } from "@meshsdk/core";
 import { useState, useEffect } from "react";
 import { BlockfrostProvider } from '@meshsdk/core';
 import { Cardano } from '@cardano-sdk/core'; 
-
-// Custom Datum type for Plutus compatibilityuse effects to set 
-type Datum = { fields: (string | Datum)[] };
+import { blake2b } from 'blakejs';
 
 const blockfrostProvider = new BlockfrostProvider('previewT07MdOONxN1GZFlTTOR82iFvPuOA0UXx');
 const POLICY_ID = "b2e20610e339ec3e6260feda072e8ea47ee622aa398c2a794e0ea90b";
 const MINT_SCRIPT: PlutusScript = {
-  code: "5901c001000032222533300a0086010895cd25e5d48010020a400149b2b9b2a",
+  code: "5846010000322232533300900800486010895cd65d401000200200646666646004266006466666263157337300e375c2f335d744ce2f",
   version: "V2",
 };
 const STATE_SCRIPT: PlutusScript = {
-  code: "581c01000033222220051200120011",
+  code: "4e4d010000332223200114d33abba30013001375c2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f335d744ce2f",
   version: "V2",
 };
+try {
+  const testAddress = serializePlutusScript(STATE_SCRIPT, undefined, 0).address;
+  console.log("STATE_SCRIPT is valid. Test address:", testAddress);
+} catch (error: any) {
+  console.error("STATE_SCRIPT is invalid:", error.message);
+}
 const FEE_WALLET = "addr_test1qqwjhk7afcccp79tx2v6y4nxgz5adg4p9sn542hkp3uepvcv4q99clyy9mkerr024hrl6xxhz2t9nfmhkehj8z8r4wwsqvexyh"
-const ADMIN_PKH = "6632343865353962306534346535333663383338636365393132623939396363313261353237626261656462636236313330663633336566"
+const ADMIN_PKH = "de2715c512c4f08ea3f845d7157519b0935e5596f2275ce6f423a13e";
 
 export default function Home() {
   const { wallet, connected } = useWallet();
@@ -45,31 +49,32 @@ export default function Home() {
       try {
         const addrs = await wallet.getUsedAddresses();
         if (!addrs.length) throw new Error("No used addresses found");
-        const address = addrs[0]; // Get the first used address
-        const pkh = await wallet.getNetworkId().then(network => {
-          const addr = Cardano.Address.fromBech32(address);
-          const baseAddr = Cardano.BaseAddress.fromAddress(addr);
-          if (!baseAddr) throw new Error("Not a base address");
-          return baseAddr.getPaymentCredential().hash; // Keep as Buffer
-        });
-        const pkhHex = Buffer.from(pkh).toString('hex');
-        console.log("Connected wallet PKH:", pkhHex); // Debug log
-        const stateScript: NativeScript = {
-          type: "all",
-          scripts: [{ type: "sig", keyHash: pkh }],
-        };
-        setStateScriptAddress(serializeNativeScript(stateScript).address);
-        console.log("Created stateScriptAddress:", serializeNativeScript(stateScript).address);
-        setAdminPKH(ADMIN_PKH); // Use the hardcoded ADMIN_PKH
-        console.log("adminPKH set in useEffect:", ADMIN_PKH);
-        setIsAdmin(pkhHex === ADMIN_PKH); // Check if this wallet is admin
+        const address = addrs[0];
+        const addrObj = Cardano.Address.fromBech32(address);
+        const baseAddr = Cardano.BaseAddress.fromAddress(addrObj);
+        if (!baseAddr) throw new Error("Not a base address");
+        const pkh = baseAddr.getPaymentCredential().hash; // 56-byte key
+        console.log("Raw pkh:", Buffer.from(pkh).toString('hex'));
+        console.log("Raw pkh length:", pkh.length); // 56
+        const pkhHash = blake2b(pkh, undefined, 28); // 28-byte Blake2b-224
+        const pkhHex = Buffer.from(pkhHash).toString('hex'); // 56 chars
+        console.log("Hashed PKH:", pkhHex);
+        console.log("Hashed PKH length:", Buffer.from(pkhHex, 'hex').length); // 28
+        // Use Mesh SDK to serialize Plutus script
+        const stateScriptAddress = serializePlutusScript(STATE_SCRIPT, undefined, 0).address;
+        setStateScriptAddress(stateScriptAddress);
+        console.log("Created stateScriptAddress:", stateScriptAddress);
+        setAdminPKH(pkhHex);
+        console.log("New adminPKH length:", Buffer.from(pkhHex, 'hex').length); // 28
+        console.log("adminPKH set in useEffect:", pkhHex);
+        setIsAdmin(pkhHex === ADMIN_PKH);
       } catch (error) {
         console.error("Failed to set addresses:", error);
       }
     };
     setAddress();
-
   }, [connected, wallet]);
+  
   async function initializeStateUtxos() {
     if (!connected || !wallet || !adminPKH) {
       alert("Connect wallet first or admin PKH not set!");
@@ -80,28 +85,38 @@ export default function Home() {
       return;
     }
     console.log("stateScriptAddress:", stateScriptAddress);
-    const walletPKH = await wallet.getUsedAddresses().then(addrs => {
-      const baseAddr = Cardano.Address.fromBech32(addrs[0]).asBase();
-      return baseAddr ? Buffer.from(baseAddr.getPaymentCredential().hash).toString('hex') : '';
+    const walletPKH = await wallet.getChangeAddress().then(addr => {
+      console.log("Raw address:", addr);
+      const addrObj = Cardano.Address.fromBech32(addr);
+      console.log("Address object:", addrObj);
+      const baseAddr = addrObj.asBase();
+      console.log("Base address:", baseAddr);
+      const hash = baseAddr?.getPaymentCredential().hash;
+      console.log("Raw hash:", hash);
+      return hash ? Buffer.from(blake2b(Buffer.from(hash.toString()), undefined, 28)).toString('hex') : '';
     });
     console.log("walletPKH in initializeStateUtxos:", walletPKH, "adminPKH:", adminPKH);
     if (walletPKH !== adminPKH) {
+      console.log("Admin check failed: walletPKH does not match adminPKH");
       alert("Admin only!");
       return;
     }
     try {
       const tx = new Transaction({ initiator: wallet });
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 1-second delay
-      for (let i = 65; i <= 100; i++) {
-        const shard = String.fromCharCode(i <= 90 ? i : i - 26 + 32);
-        const datum = { alternative: 0, fields: [shard, { alternative: 0, fields: [] }] };
-        console.log("Datum for shard:", shard, "value:", JSON.stringify(datum));
+      const shards = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()";
+      console.log("Initializing 36 shards:", shards);
+      for (const shard of shards) {
+        const datum: Data = {
+          alternative: 0,
+          fields: [
+            shard,
+            { alternative: 0, fields: [] }
+          ]
+        };
+        
         tx.sendAssets(
-          {
-            address: stateScriptAddress,
-            datum: { value: datum as Data },
-          },
-          [] // No initial amount, MeshSDK will set minimum
+          { address: stateScriptAddress, datum: { value: datum, inline: true } },
+          [{ unit: "lovelace", quantity: "1000000" }] // Mesh will adjust
         );
       }
       const unsignedTx = await tx.build();
@@ -111,10 +126,9 @@ export default function Home() {
       alert(`State UTxOs initialized! Tx Hash: ${txHash}`);
     } catch (error) {
       console.error("Initialization failed:", error);
-      alert("Initialization failed.");
+      alert("Failed to initialize state UTxOs!");
     }
   }
-
   async function fetchDatumFromHash(dataHash: string) {
     const response = await fetch(
       `https://cardano-preview.blockfrost.io/api/v0/scripts/datum/${dataHash}`,
@@ -142,14 +156,25 @@ export default function Home() {
       console.log("adminPKH in mintCIP68NFT:", adminPKH);
       const adminLockAddress = serializeNativeScript(adminScript).address;
       const shard = metadata.name.charAt(0).toUpperCase();
-      const utxos = await blockfrostProvider.fetchUTxOs(stateScriptAddress);
+  
+      console.log("Fetching UTxOs for:", stateScriptAddress);
+      const response = await fetch(
+        `https://cardano-preview.blockfrost.io/api/v0/addresses/${stateScriptAddress}/utxos`,
+        { headers: { project_id: 'previewT07MdOONxN1GZFlTTOR82iFvPuOA0UXx' } }
+      );
+      if (!response.ok) throw new Error(`Blockfrost error: ${response.status}`);
+      const utxos = await response.json();
+      console.log("UTxOs found:", utxos.length, utxos);
+  
       let selectedUtxo = null;
       let currentDatum = null;
-  
       for (const utxo of utxos) {
-        if (utxo.output.dataHash) {
-          const datum = await fetchDatumFromHash(utxo.output.dataHash);
-          if (datum && datum.fields && datum.fields[0] === shard) {
+        if (utxo.data_hash) {
+          console.log("Checking datum hash:", utxo.data_hash);
+          const datum = await fetchDatumFromHash(utxo.data_hash);
+          console.log("Datum content:", JSON.stringify(datum));
+          if (datum && datum.fields && datum.fields[0].bytes === shard.charCodeAt(0).toString(16)) {
+            console.log("Shard match found for:", shard);
             if (JSON.stringify(datum.fields[1].fields || []).includes(metadata.name)) {
               alert("Name already minted!");
               return;
@@ -165,9 +190,27 @@ export default function Home() {
         alert("State UTxO for shard not found! Initialize first.");
         return;
       }
+
+      const formattedUtxo = {
+        input: {
+          txHash: selectedUtxo.tx_hash,
+          outputIndex: selectedUtxo.output_index
+        },
+        output: {
+          address: selectedUtxo.address,
+          amount: selectedUtxo.amount,
+          datum: { inline: currentDatum } // Optional, but matches your inline setup
+        }
+      };
   
       const updatedNames = [...(currentDatum.fields[1].fields || []), metadata.name];
-      const updatedDatum: Datum = { fields: [shard, { fields: updatedNames }] };
+      const updatedDatum: Data = {
+        alternative: 0,
+        fields: [
+          shard.charCodeAt(0).toString(16),
+          { alternative: 0, fields: updatedNames }
+        ]
+      };
   
       const cip68Metadata = {
         name: metadata.name,
@@ -182,7 +225,7 @@ export default function Home() {
   
       const tx = new Transaction({ initiator: wallet })
         .redeemValue({
-          value: selectedUtxo,
+          value: formattedUtxo,
           script: STATE_SCRIPT,
           datum: currentDatum,
           redeemer: { data: "" },
@@ -283,7 +326,13 @@ export default function Home() {
   
       const oldName = currentDatum.fields[1].fields.find((n: string) => n !== metadata.name) || currentDatum.fields[1].fields[0];
       const updatedNames = currentDatum.fields[1].fields.map((n: string) => n === oldName ? metadata.name : n);
-      const updatedDatum: Datum = { fields: [shard, { fields: updatedNames }] };
+      const updatedDatum: Data = {
+        alternative: 0,
+        fields: [
+          shard,
+          { alternative: 0, fields: updatedNames }
+        ]
+      };
   
       const updatedMetadata = {
         name: metadata.name,
@@ -296,7 +345,10 @@ export default function Home() {
         socialLink: metadata.socialLink,
       };
   
-      const statusDatum: Datum = { fields: ["active"] };
+      const statusDatum: Data = {
+        alternative: 0,
+        fields: ["active"]
+      };
       const tx = new Transaction({ initiator: wallet })
         .redeemValue({
           value: refUtxo,
@@ -400,4 +452,4 @@ export default function Home() {
       </main>
     </div>
   );
-}
+} 
